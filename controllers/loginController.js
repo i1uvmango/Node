@@ -18,7 +18,7 @@ const loginUser = asyncHandler(async(req,res) =>{
         return res.json("아이디가 맞지 않습니다.");
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);  //입력 비번 vs 해싱된 비번
     if(!isMatch){
         return res.json("비밀번호가 맞지 않습니다.");
     }
