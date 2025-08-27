@@ -15,7 +15,9 @@ const loginUser = asyncHandler(async(req,res) =>{
 
     const user = await User.findOne({username});
     if(!user){
-        return res.json("아이디가 맞지 않습니다.");
+        ```return res.json("아이디가 맞지 않습니다.");  이거보다 프런트 에러처리를 위해 아래처럼```
+        return res.status(401).json({ success: false, error: "아이디가 맞지 않습니다." });
+
     }
 
     const isMatch = await bcrypt.compare(password, user.password);  //입력 비번 vs 해싱된 비번
@@ -23,9 +25,10 @@ const loginUser = asyncHandler(async(req,res) =>{
         return res.json("비밀번호가 맞지 않습니다.");
     }
 
-    const token = jwt.sign({id: user._id}, jwtSecret) //sign으로 토큰생성
+    //JWT토큰 발급
+    const token = jwt.sign({id: user._id}, jwtSecret) //sign으로 jwt토큰생성
     res.cookie("token", token, {httpOnly: true});
-    res.redirect("/contacts") //로그인 성공시 redirect 경로
+    res.redirect("/contacts") //로그인 성공시 /contacts 경로로 redirect
 })
 
 
