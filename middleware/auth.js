@@ -3,7 +3,7 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
-  if (!token) {
+  if (!token) { //토큰 없을때 차단
     return res.status(401).json({
       success: false,
       error: "접근 토큰이 필요합니다.",
