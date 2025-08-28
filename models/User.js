@@ -16,11 +16,11 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      [true, "비밀번호를 기입해 주세요."],
+      required: [true, "비밀번호를 기입해 주세요."],
     },
     univ: {
       type: String,
-      [true, "소속 학교를 기입해 주세요."],
+      required: [true, "소속 학교를 기입해 주세요."],
     },
   },
   {
@@ -28,7 +28,5 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-const Contact = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
 module.exports = User;
-
-// module.exports = mongoose.model("Contact", contactSchema);
