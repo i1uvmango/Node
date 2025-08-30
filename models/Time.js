@@ -1,25 +1,21 @@
 const mongoose = require("mongoose");
 
-const PostCommentSchema = new mongoose.Schema(
+const TimeSchema = new mongoose.Schema(
   {
-    commentId: {
+    lectureTimeId: {
       type: String,
       required: true,
       unique: true,
     },
-    commentContent: {
+    startTime: {
       type: String,
       default: null,
     },
-    createdDate: {
+    endTime: {
       type: String,
       default: null,
     },
-    commentAuthor: {
-      type: String,
-      required: true,
-    },
-    boardId: {
+    lectureNumber: {
       type: String,
       required: true,
     },
@@ -29,5 +25,5 @@ const PostCommentSchema = new mongoose.Schema(
   }
 );
 
-const PostComment = mongoose.model("PostComment", PostCommentSchema);
-module.exports = PostComment;
+const Time = mongoose.model("Time", TimeSchema);
+module.exports = Time;

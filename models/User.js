@@ -4,23 +4,32 @@ const UserSchema = new mongoose.Schema(
   {
     userId: {
       type: String,
-      required: [true, "아이디를 기입해 주세요."],
+      required: true,
+      unique: true,
     },
     userName: {
       type: String,
-      required: [true, "이름을 기입해 주세요."],
-    },
-    nickname: {
-      type: String,
-      required: [true, "닉네임을 기입해 주세요."],
+      default: null,
     },
     password: {
       type: String,
-      [true, "비밀번호를 기입해 주세요."],
+      default: null,
     },
-    univ: {
+    nickname: {
       type: String,
-      [true, "소속 학교를 기입해 주세요."],
+      default: null,
+    },
+    createdDate: {
+      type: String,
+      default: null,
+    },
+    schoolName: {
+      type: String,
+      default: null,
+    },
+    points: {
+      type: String,
+      default: null,
     },
   },
   {
@@ -28,7 +37,5 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-const Contact = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
 module.exports = User;
-
-// module.exports = mongoose.model("Contact", contactSchema);
