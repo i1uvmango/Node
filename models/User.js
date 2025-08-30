@@ -1,41 +1,34 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    userName: {
-      type: String,
-      default: null,
-    },
-    password: {
-      type: String,
-      default: null,
-    },
-    nickname: {
-      type: String,
-      default: null,
-    },
-    createdDate: {
-      type: String,
-      default: null,
-    },
-    schoolName: {
-      type: String,
-      default: null,
-    },
-    points: {
-      type: String,
-      default: null,
-    },
+const UserSchema = new mongoose.Schema({
+  // PK : userId
+  _id: {
+    type: String,
+    required: true,
   },
-  {
-    timestamps: true,
-  }
-);
+  // 사용자 정보
+  userName: {
+    type: String,
+    required: [true, "사용자명을 입력해주세요"],
+  },
+  password: {
+    type: String,
+    required: [true, "비밀번호를 기입해 주세요."],
+  },
+  nickname: {
+    type: String,
+    required: [true, "닉네임을 입력해주세요"],
+  },
+  // 소속 학교
+  schoolName: {
+    type: String,
+    required: [true, "소속 학교를 기입해 주세요."],
+  },
+  // 포인트
+  points: {
+    type: Number,
+    default: 0,
+  },
+});
 
-const User = mongoose.model("User", UserSchema);
-module.exports = User;
+module.exports = mongoose.model("User", UserSchema);
