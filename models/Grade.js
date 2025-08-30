@@ -26,14 +26,15 @@ const GradeSchema = new mongoose.Schema({
   },
 });
 
-PostSchema.path("userId").validate({
+GradeSchema.path("userId").validate({
   validator: async function (val) {
     const User = mongoose.model("User");
     return !!(await User.exists({ _id: val }));
   },
   message: "userId not found",
 });
-PostSchema.path("lectureId").validate({
+
+GradeSchema.path("lectureId").validate({
   validator: async function (val) {
     const Lecture = mongoose.model("Lecture");
     return !!(await Lecture.exists({ _id: val }));

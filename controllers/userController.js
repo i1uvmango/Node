@@ -1,13 +1,9 @@
-// 예시 사용자 데이터 (실제 프로젝트에서는 데이터베이스 사용)
-let users = [
-  { id: 1, name: "김철수", email: "kim@example.com", age: 25 },
-  { id: 2, name: "이영희", email: "lee@example.com", age: 30 },
-  { id: 3, name: "박민수", email: "park@example.com", age: 28 },
-];
+const User = require("../models/User");
 
 // 모든 사용자 조회
-const getAllUsers = (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
+    const users = await User.find();
     res.status(200).json({
       success: true,
       data: users,
@@ -17,15 +13,16 @@ const getAllUsers = (req, res) => {
     res.status(500).json({
       success: false,
       error: "사용자 목록을 가져오는데 실패했습니다.",
+      details: error.message,
     });
   }
 };
 
 // 특정 사용자 조회
-const getUserById = (req, res) => {
+const getUserById = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    const user = users.find((u) => u.id === id);
+    const { userId } = req.params;
+    const user = await User.findOne({ userId });
 
     if (!user) {
       return res.status(404).json({
@@ -42,96 +39,107 @@ const getUserById = (req, res) => {
     res.status(500).json({
       success: false,
       error: "사용자 정보를 가져오는데 실패했습니다.",
+      details: error.message,
     });
   }
 };
 
 // 새 사용자 생성
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
   try {
-    const { name, email, age } = req.body;
+    const { userId, userName, password, nickname, schoolName, points } =
+      req.body;
 
     // 간단한 유효성 검사
-    if (!name || !email) {
+    if (!userId || !userName) {
       return res.status(400).json({
         success: false,
-        error: "이름과 이메일은 필수 항목입니다.",
+        error: "사용자 ID와 이름은 필수 항목입니다.",
+      });
+    }
+
+    // 중복 사용자 확인
+    const existingUser = await User.findOne({ userId });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: "이미 존재하는 사용자 ID입니다.",
       });
     }
 
     // 새 사용자 생성
-    const newUser = {
-      id: users.length + 1,
-      name,
-      email,
-      age: age || null,
-    };
+    const newUser = new User({
+      userId,
+      userName,
+      password,
+      nickname,
+      schoolName,
+      points,
+      createdDate: new Date().toISOString(),
+    });
 
-    users.push(newUser);
+    const savedUser = await newUser.save();
 
     res.status(201).json({
       success: true,
-      data: newUser,
+      data: savedUser,
       message: "사용자가 성공적으로 생성되었습니다.",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: "사용자 생성에 실패했습니다.",
+      details: error.message,
     });
   }
 };
 
 // 사용자 정보 수정
-const updateUser = (req, res) => {
+const updateUser = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    const { name, email, age } = req.body;
+    const { userId } = req.params;
+    const updateData = req.body;
 
-    const userIndex = users.findIndex((u) => u.id === id);
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
 
-    if (userIndex === -1) {
+    if (!updatedUser) {
       return res.status(404).json({
         success: false,
         error: "사용자를 찾을 수 없습니다.",
       });
     }
 
-    // 사용자 정보 업데이트
-    users[userIndex] = {
-      ...users[userIndex],
-      ...(name && { name }),
-      ...(email && { email }),
-      ...(age && { age }),
-    };
-
     res.status(200).json({
       success: true,
-      data: users[userIndex],
+      data: updatedUser,
       message: "사용자 정보가 성공적으로 수정되었습니다.",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: "사용자 정보 수정에 실패했습니다.",
+      details: error.message,
     });
   }
 };
 
 // 사용자 삭제
-const deleteUser = (req, res) => {
+const deleteUser = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    const userIndex = users.findIndex((u) => u.id === id);
+    const { userId } = req.params;
 
-    if (userIndex === -1) {
+    const deletedUser = await User.findOneAndDelete({ userId });
+
+    if (!deletedUser) {
       return res.status(404).json({
         success: false,
         error: "사용자를 찾을 수 없습니다.",
       });
     }
-
-    const deletedUser = users.splice(userIndex, 1)[0];
 
     res.status(200).json({
       success: true,
@@ -142,6 +150,7 @@ const deleteUser = (req, res) => {
     res.status(500).json({
       success: false,
       error: "사용자 삭제에 실패했습니다.",
+      details: error.message,
     });
   }
 };
