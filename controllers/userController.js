@@ -69,6 +69,7 @@ const createUser = async (req, res) => {
 
     // 새 사용자 생성
     const newUser = new User({
+      _id: userId, // _id 필드를 userId와 동일하게 설정
       userId,
       userName,
       password,
