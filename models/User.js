@@ -6,6 +6,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  // 사용자 ID (중복 방지용)
+  userId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   // 사용자 정보
   userName: {
     type: String,

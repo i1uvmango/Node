@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 // 모든 사용자 조회
 const getAllUsers = async (req, res) => {
@@ -22,7 +23,8 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findOne({ userId });
+    // _id로 검색 (userId와 동일한 값)
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -59,7 +61,7 @@ const createUser = async (req, res) => {
     }
 
     // 중복 사용자 확인
-    const existingUser = await User.findOne({ userId });
+    const existingUser = await User.findById(userId);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -67,12 +69,15 @@ const createUser = async (req, res) => {
       });
     }
 
+    // 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // 새 사용자 생성
     const newUser = new User({
       _id: userId, // _id 필드를 userId와 동일하게 설정
       userId,
       userName,
-      password,
+      password: hashedPassword, // 해싱된 비밀번호 사용
       nickname,
       schoolName,
       points,
@@ -101,8 +106,8 @@ const updateUser = async (req, res) => {
     const { userId } = req.params;
     const updateData = req.body;
 
-    const updatedUser = await User.findOneAndUpdate(
-      { userId },
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
       { $set: updateData },
       { new: true, runValidators: true }
     );
@@ -133,7 +138,7 @@ const deleteUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const deletedUser = await User.findOneAndDelete({ userId });
+    const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
       return res.status(404).json({
