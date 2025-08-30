@@ -2,7 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const connectDB = require("../config/database");
 require("dotenv").config();
+
+// MongoDB 연결
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
