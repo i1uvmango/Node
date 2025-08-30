@@ -1,56 +1,54 @@
 const asyncHandler = require("express-async-handler");
-const User = require('../models/userModel');
+const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtSecret = process.env.JWT_SECRET;
 
 //Login Page 랜더링
-const getLogin = (req,res) => {
-    res.render('home');  //home 이름의 ejs
-}
+const getLogin = (req, res) => {
+  res.render("home"); //home 이름의 ejs
+};
 
 //loginUser
-const loginUser = asyncHandler(async(req,res) =>{
-    const {username, password } = req.body;
+const loginUser = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
 
-    const user = await User.findOne({username});
-    if(!user){
-        ```return res.json("아이디가 맞지 않습니다.");  이거보다 프런트 에러처리를 위해 아래처럼```
-        return res.status(401).json({ success: false, error: "아이디가 맞지 않습니다." });
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res
+      .status(401)
+      .json({ success: false, error: "아이디가 맞지 않습니다." });
+  }
 
-    }
+  const isMatch = await bcrypt.compare(password, user.password); //입력 비번 vs 해싱된 비번
+  if (!isMatch) {
+    return res.json("비밀번호가 맞지 않습니다.");
+  }
 
-    const isMatch = await bcrypt.compare(password, user.password);  //입력 비번 vs 해싱된 비번
-    if(!isMatch){
-        return res.json("비밀번호가 맞지 않습니다.");
-    }
-
-    //JWT토큰 발급
-    const token = jwt.sign({id: user._id}, jwtSecret) //sign으로 jwt토큰생성
-    res.cookie("token", token, {httpOnly: true});
-    res.redirect("/contacts") //로그인 성공시 /contacts 경로로 redirect
-})
-
+  //JWT토큰 발급
+  const token = jwt.sign({ id: user._id }, jwtSecret); //sign으로 jwt토큰생성
+  res.cookie("token", token, { httpOnly: true });
+  res.redirect("/contacts"); //로그인 성공시 /contacts 경로로 redirect
+});
 
 //회원가입 랜더링
-const getRegister = (req,res) =>{
-    res.render("register"); //register 이름의 ejs
-}
+const getRegister = (req, res) => {
+  res.render("register"); //register 이름의 ejs
+};
 
 //회원가입 //POST 경로
-const registerUser = asyncHandler(async(req,res) => { 
-    const {username, password, password2} = req.body;
-    if (password === password2){ //비밀번호 확인 로직
-        const hashedPassword = await bcrypt.hash(password, 10);  //해싱
-        const user = await User.create({username, password : hashedPassword}); //db에 저장
+const registerUser = asyncHandler(async (req, res) => {
+  const { username, password, password2 } = req.body;
+  if (password === password2) {
+    //비밀번호 확인 로직
+    const hashedPassword = await bcrypt.hash(password, 10); //해싱
+    const user = await User.create({ username, password: hashedPassword }); //db에 저장
 
-        res.json({message : "회원가입 성공", user});
-        
-    }
-    else{//fail
-        res.send("Failed to Register")
-    }
-})
+    res.json({ message: "회원가입 성공", user });
+  } else {
+    //fail
+    res.send("Failed to Register");
+  }
+});
 
-
-module.exports= {getLogin, loginUser, getRegister, registerUser};
+module.exports = { getLogin, loginUser, getRegister, registerUser };
