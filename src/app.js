@@ -33,6 +33,7 @@ app.get("/", (req, res) => {
 // API 라우터
 app.use("/api/users", require("../routes/users"));
 app.use("/api/auth", require("../routes/auth")); // 인증 라우터 추가
+app.use("/api/lectures", require("../routes/lectures"));
 
 // 404 에러 핸들링
 app.use("*", (req, res) => {
