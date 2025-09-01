@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const connectDB = require("../config/database");
+const { swaggerUi, specs } = require("../config/swagger");
 require("dotenv").config();
 
 // MongoDB 연결
@@ -21,6 +22,31 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // URL 인코딩
 // 정적 파일 제공 (선택사항)
 app.use("/public", express.static("public"));
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: 서버 상태 확인
+ *     description: Express 서버가 정상적으로 실행되고 있는지 확인합니다.
+ *     responses:
+ *       200:
+ *         description: 서버가 정상적으로 실행 중
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: 서버 상태 메시지
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   description: 응답 시간
+ *                 environment:
+ *                   type: string
+ *                   description: 현재 환경
+ */
 // 기본 라우터
 app.get("/", (req, res) => {
   res.json({
@@ -29,6 +55,17 @@ app.get("/", (req, res) => {
     environment: process.env.NODE_ENV || "development",
   });
 });
+
+// Swagger 문서 설정
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Node.js Express API Documentation",
+  })
+);
 
 // API 라우터
 app.use("/api/users", require("../routes/users"));
